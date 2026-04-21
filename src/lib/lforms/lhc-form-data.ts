@@ -648,13 +648,14 @@ export default class LhcFormData {
    */
   _checkConstraints(item, errors) {
     if (item._hasValidation && item.constraints && item.constraints.length > 0) {
+      // Regenerate _elemIDToQRItem to get a fresh context, otherwise the evaluated result will be cached
+      // even after you change form value and evaluate again.
+      this._expressionProcessor._regenerateFhirVariableQ();
+      this._expressionProcessor._regenerateQuestionnaireResp();
       for (let i=0; i<item.constraints.length; i++) {
         const constraint = item.constraints[i].extension;
         const expression = constraint.find(e => e.url === 'expression').valueExpression.expression;
         if (expression) {
-          // Regenerate _elemIDToQRItem to get a fresh context, otherwise the evaluated result will be cached
-          // even after you change form value and evaluate again.
-          this._expressionProcessor._regenerateQuestionnaireResp();
           const valid = this._expressionProcessor._evaluateFHIRPathAgainstContext(item, expression, item);
           if (valid === false) {
             const human = constraint.find(e => e.url === 'human').valueString;
@@ -670,6 +671,7 @@ export default class LhcFormData {
               // Add the validation error message (human) to the item._validationErrors array of the item
               // specified in the constraint's location.
               itemToShowError._validationErrors = [...itemToShowError._validationErrors || [], errorMsg];
+              itemToShowError._hasValidation = true;
             }, 1);
           }
         }
