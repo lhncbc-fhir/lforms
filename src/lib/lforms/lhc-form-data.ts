@@ -662,17 +662,23 @@ export default class LhcFormData {
             const constraintKey = constraint.find(e => e.url === 'key').valueId;
             const errorMsg = constraintKey ? `${human} The targetConstraint key is: ${constraintKey}.` : human;
             errors.push(errorMsg);
-            const location = constraint.find(e => e.url === 'location').valueString;
-            const itemOfLocation = this._expressionProcessor._evaluateFHIRPathAgainstContext(item, location, item);
-            // Use a timeout to add to the validation errors of the location item, lest it be overridden by
-            // the validation of the location item itself which might be processed after the current item.
-            setTimeout(() => {
-              let itemToShowError = this._findItemByLinkId(item, itemOfLocation.linkId);
-              // Add the validation error message (human) to the item._validationErrors array of the item
-              // specified in the constraint's location.
-              itemToShowError._validationErrors = [...itemToShowError._validationErrors || [], errorMsg];
-              itemToShowError._hasValidation = true;
-            }, 1);
+            const location = constraint.find(e => e.url === 'location')?.valueString;
+            if (location) {
+              const itemOfLocation = this._expressionProcessor._evaluateFHIRPathAgainstContext(item, location, item);
+              if (itemOfLocation.linkId) {
+                // Use a timeout to add to the validation errors of the location item, lest it be overridden by
+                // the validation of the location item itself which might be processed after the current item.
+                setTimeout(() => {
+                  let itemToShowError = this.itemList.find(x => x.linkId === itemOfLocation.linkId);
+                  if (itemToShowError) {
+                    // Add the validation error message (human) to the item._validationErrors array of the item
+                    // specified in the constraint's location.
+                    itemToShowError._validationErrors = [...itemToShowError._validationErrors || [], errorMsg];
+                    itemToShowError._hasValidation = true;
+                  }
+                }, 1);
+              }
+            }
           }
         }
       }
