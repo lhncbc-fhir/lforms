@@ -643,15 +643,10 @@ export default class LhcFormData {
   /**
    * Check for constraints (targetConstraint extension) defined on this item, if any.
    * @param item the question item
-   * @param errors the error messages array that returns
-   * @returns {boolean}
+   * @param issues the error/warning object array that returns
    */
-  _checkConstraints(item, errors) {
-    if (item._hasValidation && item.constraints && item.constraints.length > 0) {
-      // Regenerate _elemIDToQRItem to get a fresh context, otherwise the evaluated result will be cached
-      // even after you change form value and evaluate again.
-      this._expressionProcessor._regenerateFhirVariableQ();
-      this._expressionProcessor._regenerateQuestionnaireResp();
+  _checkConstraints(item, issues) {
+    if (item.constraints && item.constraints.length > 0) {
       for (let i=0; i<item.constraints.length; i++) {
         const constraint = item.constraints[i].extension;
         const expression = constraint.find(e => e.url === 'expression').valueExpression.expression;
@@ -659,9 +654,15 @@ export default class LhcFormData {
           const valid = this._expressionProcessor._evaluateFHIRPathAgainstContext(item, expression, item);
           if (valid === false) {
             const human = constraint.find(e => e.url === 'human').valueString;
+            const severity = constraint.find(e => e.url === 'severity').valueCode;
             const constraintKey = constraint.find(e => e.url === 'key').valueId;
-            const errorMsg = constraintKey ? `${human} The targetConstraint key is: ${constraintKey}.` : human;
-            errors.push(errorMsg);
+            const issue = {
+              linkId: item.linkId,
+              message: human,
+              severity: severity,
+              constraintKey: constraintKey
+            }
+            issues.push(issue);
             const location = constraint.find(e => e.url === 'location')?.valueString;
             if (location) {
               const itemOfLocation = this._expressionProcessor._evaluateFHIRPathAgainstContext(item, location, item);
@@ -671,9 +672,13 @@ export default class LhcFormData {
                 setTimeout(() => {
                   let itemToShowError = this.itemList.find(x => x.linkId === itemOfLocation.linkId);
                   if (itemToShowError) {
-                    // Add the validation error message (human) to the item._validationErrors array of the item
-                    // specified in the constraint's location.
-                    itemToShowError._validationErrors = [...itemToShowError._validationErrors || [], errorMsg];
+                    // Add the validation error message (human) to the item._validationErrors or item._validationWarnings
+                    // array of the item specified in the constraint's location.
+                    if (severity === 'warning') {
+                      itemToShowError._validationWarnings = [...itemToShowError._validationWarnings || [], human];
+                    } else {
+                      itemToShowError._validationErrors = [...itemToShowError._validationErrors || [], human];
+                    }
                     itemToShowError._hasValidation = true;
                   }
                 }, 1);
@@ -684,6 +689,8 @@ export default class LhcFormData {
       }
     }
   }
+
+
     /**
    * run all form controls when a form data is initially loaded.
    * @private
@@ -1770,7 +1777,6 @@ export default class LhcFormData {
 
       if (item._skipLogicStatus !== CONSTANTS.SKIP_LOGIC.STATUS_DISABLED) {
         this._checkValidations(item);
-        this._checkConstraints(item, item._validationErrors);
 
         if (item._validationErrors !== undefined && item._validationErrors.length) {
           const errorDetails = item._validationErrors.map((e) => `${item.question} ${e}`);
@@ -1782,6 +1788,33 @@ export default class LhcFormData {
 
     if (errors.length) {
       return errors;
+    } else {
+      return null;
+    }
+  }
+
+
+  /**
+   * Get a list of errors preventing the form from being valid.
+   * @returns {Array<string> | null} list of errors or null if no errors
+   */
+  checkConstraints () {
+    // Regenerate _elemIDToQRItem to get a fresh context, otherwise the evaluated result will be cached
+    // even after you change form value and evaluate again.
+    this._expressionProcessor._regenerateFhirVariableQ();
+    this._expressionProcessor._regenerateQuestionnaireResp();
+    const issues = [];
+    const itemListLength = this.itemList.length;
+    for (let i = 0; i < itemListLength; i++) {
+      const item = this.itemList[i];
+      delete item._validationErrors;
+      delete item._validationWarnings;
+      if (item._skipLogicStatus !== CONSTANTS.SKIP_LOGIC.STATUS_DISABLED) {
+        this._checkConstraints(item, issues);
+      }
+    }
+    if (issues.length) {
+      return issues;
     } else {
       return null;
     }
