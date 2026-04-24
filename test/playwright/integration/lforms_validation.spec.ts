@@ -713,10 +713,15 @@ test.describe('Validations', () => {
       await byId(page, '1.2/1/1').fill('1');
       await byId(page, '1.2/1/1').blur();
       const errors1 = await page.evaluate(() => {
-        return (window as any).LForms.Util.checkValidity();
+        return (window as any).LForms.Util.checkConstraints();
       });
       expect(errors1).toEqual([
-        'Please enter a minimum and maximum value. The minimum value must be less than or equal to the maximum value. The targetConstraint key is: min-max-check.'
+        {
+          linkId: '1',
+          message: 'The minimum value must be less than or equal to the maximum value.',
+          severity: 'error',
+          constraintKey: 'min-max-check'
+        }
       ]);
       // The error message should be shown on the Maximum Value field, as defined in the
       // targetConstraint extension 'location' sub extension.
@@ -727,12 +732,73 @@ test.describe('Validations', () => {
       await byId(page, '1.2/1/1').fill('3');
       await byId(page, '1.2/1/1').blur();
       const errors2 = await page.evaluate(() => {
-        return (window as any).LForms.Util.checkValidity();
+        return (window as any).LForms.Util.checkConstraints();
       });
       expect(errors2).toBeNull();
       await expect(
         page.locator(':text("The minimum value must be less than or equal to the maximum value.")')
       ).not.toBeVisible();
+    });
+
+    test('should validate targetConstraint - complex', async ({ page }) => {
+      await loadFromTestData(page, 'q-with-targetConstraint-issues.json', 'R4');
+      await pressCypressKeys(byId(page, '1/1/1'), '{downArrow}{enter}');
+      await byId(page, '1/1/1').blur();
+      const errors1 = await page.evaluate(() => {
+        return (window as any).LForms.Util.checkConstraints();
+      });
+      expect(errors1).toEqual([
+        {
+          linkId: 'container',
+          message: 'You must state your favorite color or number (or both).',
+          severity: 'error',
+          constraintKey: 'constraint-dont-be-shy'
+        }
+      ]);
+      // The error message should be shown on the Maximum Value field, as defined in the
+      // targetConstraint extension 'location' sub extension.
+      await expect(
+        byId(page, 'item-1/1/1').locator(':text("You must state your favorite color or number (or both).")')
+      ).toBeVisible();
+      // Check constraints again, and it should return the same error without repeating it.
+      const errors2 = await page.evaluate(() => {
+        return (window as any).LForms.Util.checkConstraints();
+      });
+      expect(errors2).toEqual([
+        {
+          linkId: 'container',
+          message: 'You must state your favorite color or number (or both).',
+          severity: 'error',
+          constraintKey: 'constraint-dont-be-shy'
+        }
+      ]);
+      // Fill field 3 to make the constraint valid.
+      await pressCypressKeys(byId(page, '3/1/1'), '{downArrow}{enter}');
+      await byId(page, '3/1/1').blur();
+      const errors3 = await page.evaluate(() => {
+        return (window as any).LForms.Util.checkConstraints();
+      });
+      expect(errors3).toBeNull();
+      await expect(
+        page.locator(':text("You must state your favorite color or number (or both).")')
+      ).not.toBeVisible();
+      // Make field 3 violate the constraint with a warning.
+      await pressCypressKeys(byId(page, '3/1/1'), '{downArrow}{downArrow}{downArrow}{enter}');
+      await byId(page, '3/1/1').blur();
+      const errors4 = await page.evaluate(() => {
+        return (window as any).LForms.Util.checkConstraints();
+      });
+      expect(errors4).toEqual([
+        {
+          linkId: '3',
+          message: 'The Sox is not a valid answer since it might refer to the White Sox.',
+          severity: 'warning',
+          constraintKey: 'constraint-team'
+        }
+      ]);
+      await expect(
+        page.locator(':text("The Sox is not a valid answer since it might refer to the White Sox.")')
+      ).toBeVisible();
     });
   });
 });
