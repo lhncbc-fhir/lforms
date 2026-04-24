@@ -2,6 +2,13 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [41.3.0] 2026-04-24
+### Added
+- New utility function LForms.Util.checkConstraints() to get a list
+  of errors/warnings from targetConstraints, including severity levels.
+### Fixed
+- Issues where targetConstraint errors were ignored or duplicated.
+
 ## [41.2.0] 2026-04-20
 ### Added
 - New template option showRadioClearSelectionButton to show a
