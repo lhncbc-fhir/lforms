@@ -7,13 +7,13 @@
         <span class="lhc-error-msg">{{error}}</span>
       </div>
     </div>
-    <div *ngFor="let warning of item._validationWarnings; index as i" >
+    @for (warning of item._validationWarnings; track $index) {
       <div class="validation-error">
         <i class="lhc-error-icon" nz-icon nzType="close"></i>
         <span class="lhc-error-item">{{item.question}}</span>
         <span class="lhc-warning-msg">{{warning}}</span>
       </div>
-    </div>
+    }
   </div>
   <!-- hidden item.value -->
   <div class="lhc-watched-value">{{value}}</div>
