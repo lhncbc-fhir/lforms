@@ -215,12 +215,15 @@ function addSDCImportFns(ns) {
     // No URI mapping found.  Fall back to matching by well-known code names,
     // but warn so missing expansion.property entries are visible.
     if (SCORE_PROPERTY_CODES.includes(propertyCode)) {
-      console.warn(
-        'LForms: ValueSet expansion property "' + propertyCode + '" is ' +
-        'recognized as score-relevant by name, but has no URI mapping in ' +
-        'expansion.property to confirm. Add an expansion.property entry with ' +
-        'the corresponding URI to suppress this warning.'
-      );
+      if (!propertyUriByCode._warnedMissingUriMapping) {
+        console.warn(
+          'LForms: ValueSet expansion property "' + propertyCode + '" is ' +
+          'recognized as score-relevant by name, but has no URI mapping in ' +
+          'expansion.property to confirm. Add an expansion.property entry with ' +
+          'the corresponding URI to suppress this warning.'
+        );
+        propertyUriByCode._warnedMissingUriMapping = true;
+      }
       return true;
     }
 
@@ -290,22 +293,26 @@ function addSDCImportFns(ns) {
    * Emits a console.warn when a score is found so implementers can migrate to
    * expansion.contains.property (R5) or the R4/R4B backport extension.
    * @param containsEntry entry in expansion.contains
+   * @param propertyUriByCode map from expansion.property code to uri
    * @returns {number|undefined}
    * @private
    */
-  self._resolveLegacyScoreFromContainsExtension = function(containsEntry) {
+  self._resolveLegacyScoreFromContainsExtension = function(containsEntry, propertyUriByCode) {
     const ordExt = LForms.Util.findObjectInArray(containsEntry?.extension, 'url',
       self.fhirExtUrlValueSetScoreOrdinalValue) ||
       LForms.Util.findObjectInArray(containsEntry?.extension, 'url',
         self.fhirExtUrlValueSetScoreItemWeight);
     const score = self._toScoreNumber(self._extractValueX(ordExt));
     if (score !== undefined) {
-      console.warn(
-        'LForms: Score extracted from deprecated ValueSet.expansion.contains.extension ' +
-        '(ordinalValue/itemWeight). This path is retained for backward compatibility only. ' +
-        'Migrate to expansion.contains.property (R5) or the R4/R4B backport extension ' +
-        'http://hl7.org/fhir/5.0/StructureDefinition/extension-ValueSet.expansion.contains.property'
-      );
+      if (!propertyUriByCode._warnedLegacyScore) {
+        console.warn(
+          'LForms: Score extracted from deprecated ValueSet.expansion.contains.extension ' +
+          '(ordinalValue/itemWeight). This path is retained for backward compatibility only. ' +
+          'Migrate to expansion.contains.property (R5) or the R4/R4B backport extension ' +
+          'http://hl7.org/fhir/5.0/StructureDefinition/extension-ValueSet.expansion.contains.property'
+        );
+        propertyUriByCode._warnedLegacyScore = true;
+      }
     }
     return score;
   };
@@ -347,7 +354,7 @@ function addSDCImportFns(ns) {
       return scoreFromBackport;
     }
 
-    return self._resolveLegacyScoreFromContainsExtension(containsEntry);
+    return self._resolveLegacyScoreFromContainsExtension(containsEntry, propertyUriByCode);
   };
 
 
