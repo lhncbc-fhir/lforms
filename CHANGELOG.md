@@ -2,14 +2,14 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [41.4.0] 2026-05-04
+## [42.1.0] 2026-05-04
 ### Added
 - New utility function LForms.Util.checkConstraints() to get a list
   of errors/warnings from targetConstraints, including severity levels.
 ### Fixed
 - Issues where targetConstraint errors were ignored or duplicated.
 
-## [41.3.0] 2026-04-29
+## [42.0.0] 2026-04-29
 ### Changed
 - LForms.Util.validateQuestionnaireOnFHIRServer() returned Promise
   now resolves to an OperationOutcome resource from the $validate operation.
