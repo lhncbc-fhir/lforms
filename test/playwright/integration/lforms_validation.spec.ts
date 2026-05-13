@@ -785,6 +785,7 @@ test.describe('Validations', () => {
       await byId(page, '1/1/1').click();
       await expect(page.locator(errorContainer).filter({ hasText: "You must state your favorite color or number (or both)." })).not.toBeVisible();
       // Make field 3 violate the constraint with a warning.
+      await byId(page, '3/1/1').click();
       await pressCypressKeys(byId(page, '3/1/1'), '{downArrow}{downArrow}{downArrow}{enter}');
       await byId(page, '3/1/1').blur();
       const errors4 = await page.evaluate(() => {
