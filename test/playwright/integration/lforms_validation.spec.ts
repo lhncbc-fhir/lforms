@@ -720,7 +720,8 @@ test.describe('Validations', () => {
           linkId: '1',
           message: 'The minimum value must be less than or equal to the maximum value.',
           severity: 'error',
-          constraintKey: 'min-max-check'
+          constraintKey: 'min-max-check',
+          locationLinkId: '1.2'
         }
       ]);
       // The error message should be shown on the Maximum Value field, as defined in the
@@ -752,7 +753,8 @@ test.describe('Validations', () => {
           linkId: 'container',
           message: 'You must state your favorite color or number (or both).',
           severity: 'error',
-          constraintKey: 'constraint-dont-be-shy'
+          constraintKey: 'constraint-dont-be-shy',
+          locationLinkId: '1'
         }
       ]);
       // The error message should be shown on the Maximum Value field, as defined in the
@@ -769,7 +771,8 @@ test.describe('Validations', () => {
           linkId: 'container',
           message: 'You must state your favorite color or number (or both).',
           severity: 'error',
-          constraintKey: 'constraint-dont-be-shy'
+          constraintKey: 'constraint-dont-be-shy',
+          locationLinkId: '1'
         }
       ]);
       // Fill field 3 to make the constraint valid.
@@ -793,7 +796,8 @@ test.describe('Validations', () => {
           linkId: '3',
           message: 'The Sox is not a valid answer since it might refer to the White Sox.',
           severity: 'warning',
-          constraintKey: 'constraint-team'
+          constraintKey: 'constraint-team',
+          locationLinkId: '3'
         }
       ]);
       await expect(

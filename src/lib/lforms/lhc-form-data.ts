@@ -647,7 +647,7 @@ export default class LhcFormData {
    * @param item the question item
    * @param issues the error/warning object array that returns
    */
-  _checkConstraints(item, issues) {
+  _checkConstraintsOnItem(item, issues) {
     if (item.constraints && item.constraints.length > 0) {
       for (let i=0; i<item.constraints.length; i++) {
         const constraint = item.constraints[i].extension;
@@ -663,12 +663,13 @@ export default class LhcFormData {
               message: human,
               severity: severity,
               constraintKey: constraintKey
-            }
+            } as any;
             issues.push(issue);
             const location = constraint.find(e => e.url === 'location')?.valueString;
             if (location) {
               const itemOfLocation = this._expressionProcessor._evaluateFHIRPathAgainstContext(item, location, item);
               if (itemOfLocation.linkId) {
+                issue.locationLinkId = itemOfLocation.linkId;
                 // Use a timeout to add to the validation errors of the location item, lest it be overridden by
                 // the validation of the location item itself which might be processed after the current item.
                 setTimeout(() => {
@@ -684,7 +685,11 @@ export default class LhcFormData {
                     itemToShowError._hasValidation = true;
                   }
                 }, 1);
+              } else {
+                console.warn(`The location expression "${location}" in the constraint "${constraintKey}" on item "${item.linkId}" does not evaluate to an item with a linkId, so the validation message will not be added to any item._validationErrors array.`);
               }
+            } else {
+              console.warn(`No location is specified for the constraint "${constraintKey}" on item "${item.linkId}", so the validation message will not be added to any item._validationErrors array.`);
             }
           }
         }
@@ -1812,7 +1817,7 @@ export default class LhcFormData {
       delete item._validationErrors;
       delete item._validationWarnings;
       if (item._skipLogicStatus !== CONSTANTS.SKIP_LOGIC.STATUS_DISABLED) {
-        this._checkConstraints(item, issues);
+        this._checkConstraintsOnItem(item, issues);
       }
     }
     if (issues.length) {
