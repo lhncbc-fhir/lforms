@@ -709,8 +709,8 @@ test.describe('Validations', () => {
 
     test('should validate targetConstraint', async ({ page }) => {
       await loadFromTestData(page, 'q-with-targetConstraint.json', 'R4');
-      await byId(page, '1.1/1/1').fill('2');
-      await byId(page, '1.2/1/1').fill('1');
+      await byId(page, '1.1/1/1').pressSequentially('2');
+      await byId(page, '1.2/1/1').pressSequentially('1');
       await byId(page, '1.2/1/1').blur();
       const errors1 = await page.evaluate(() => {
         return (window as any).LForms.Util.checkConstraints();
@@ -726,23 +726,23 @@ test.describe('Validations', () => {
       ]);
       // The error message should be shown on the Maximum Value field, as defined in the
       // targetConstraint extension 'location' sub extension.
-      await expect(
-        byId(page, 'item-1.2/1/1').locator(':text("The minimum value must be less than or equal to the maximum value.")')
-      ).toBeVisible();
+      await byId(page, '1.2/1/1').click();
+      await expect(page.locator(errorContainer).filter({ hasText: "The minimum value must be less than or equal to the maximum value." })).toBeVisible();
       // Change to valid values.
-      await byId(page, '1.2/1/1').fill('3');
+      await byId(page, '1.2/1/1').clear();
+      await byId(page, '1.2/1/1').pressSequentially('3');
       await byId(page, '1.2/1/1').blur();
       const errors2 = await page.evaluate(() => {
         return (window as any).LForms.Util.checkConstraints();
       });
       expect(errors2).toBeNull();
-      await expect(
-        page.locator(':text("The minimum value must be less than or equal to the maximum value.")')
-      ).not.toBeVisible();
+      await byId(page, '1.2/1/1').click();
+      await expect(page.locator(errorContainer).filter({ hasText: "The minimum value must be less than or equal to the maximum value." })).not.toBeVisible();
     });
 
     test('should validate targetConstraint - complex', async ({ page }) => {
       await loadFromTestData(page, 'q-with-targetConstraint-issues.json', 'R4');
+      await byId(page, '1/1/1').click();
       await pressCypressKeys(byId(page, '1/1/1'), '{downArrow}{enter}');
       await byId(page, '1/1/1').blur();
       const errors1 = await page.evaluate(() => {
@@ -759,9 +759,8 @@ test.describe('Validations', () => {
       ]);
       // The error message should be shown on the Maximum Value field, as defined in the
       // targetConstraint extension 'location' sub extension.
-      await expect(
-        page.locator(':text("You must state your favorite color or number (or both).")')
-      ).toBeVisible();
+      await byId(page, '1/1/1').click();
+      await expect(page.locator(errorContainer).filter({ hasText: "You must state your favorite color or number (or both)." })).toBeVisible();
       // Check constraints again, and it should return the same error without repeating it.
       const errors2 = await page.evaluate(() => {
         return (window as any).LForms.Util.checkConstraints();
@@ -776,15 +775,15 @@ test.describe('Validations', () => {
         }
       ]);
       // Fill field 3 to make the constraint valid.
+      await byId(page, '3/1/1').click();
       await pressCypressKeys(byId(page, '3/1/1'), '{downArrow}{enter}');
       await byId(page, '3/1/1').blur();
       const errors3 = await page.evaluate(() => {
         return (window as any).LForms.Util.checkConstraints();
       });
       expect(errors3).toBeNull();
-      await expect(
-        page.locator(':text("You must state your favorite color or number (or both).")')
-      ).not.toBeVisible();
+      await byId(page, '1/1/1').click();
+      await expect(page.locator(errorContainer).filter({ hasText: "You must state your favorite color or number (or both)." })).not.toBeVisible();
       // Make field 3 violate the constraint with a warning.
       await pressCypressKeys(byId(page, '3/1/1'), '{downArrow}{downArrow}{downArrow}{enter}');
       await byId(page, '3/1/1').blur();
@@ -800,9 +799,8 @@ test.describe('Validations', () => {
           locationLinkId: '3'
         }
       ]);
-      await expect(
-        page.locator(':text("The Sox is not a valid answer since it might refer to the White Sox.")')
-      ).toBeVisible();
+      await byId(page, '3/1/1').click();
+      await expect(page.locator(errorContainer).filter({ hasText: "The Sox is not a valid answer since it might refer to the White Sox." })).toBeVisible();
     });
   });
 });
