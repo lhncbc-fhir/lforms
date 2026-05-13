@@ -202,6 +202,24 @@ const FormUtils = {
 
 
   /**
+   * Get a list of errors/warnings from targetConstraints.
+   * @param [element] optional, the containing HTML element that includes the LForm's rendered form.
+   *        It could either be a DOM element or a CSS selector.
+   * @return {Array<object>} list of errors/warnings or null if form is valid.
+   *        Each error/warning object has the following properties:
+   *        linkId: the linkId of the item that defined the constraint
+   *        message: the error/warning message defined in the constraint
+   *        severity: the severity of the constraint, either "error" or "warning"
+   *        constraintKey: the key defined in the targetConstraint extension
+   *        locationLinkId: the linkId of the item that is defined in the "location" sub extension, if found
+   */
+  checkConstraints: function (element) {
+    var formObj = this._getFormObjectInScope(element);
+    return formObj ? formObj.checkConstraints() : null;
+  },
+
+
+  /**
    * Makes a Questionnaire/$validate call with the given Questionnaire and base FHIR server.
    * @param questionnaire a FHIR Questionnaire resource to be validated.
    * @param fhirServerBase the base URL of the FHIR server to which the $validate call should be made.
