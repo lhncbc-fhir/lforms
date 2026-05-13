@@ -760,7 +760,7 @@ test.describe('Validations', () => {
       // The error message should be shown on the Maximum Value field, as defined in the
       // targetConstraint extension 'location' sub extension.
       await expect(
-        byId(page, 'item-1/1/1').locator(':text("You must state your favorite color or number (or both).")')
+        page.locator(':text("You must state your favorite color or number (or both).")')
       ).toBeVisible();
       // Check constraints again, and it should return the same error without repeating it.
       const errors2 = await page.evaluate(() => {
