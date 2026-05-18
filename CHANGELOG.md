@@ -2,6 +2,15 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [42.2.0] 2026-05-07
+### Changed
+- For ValueSet expansions, score import now prioritizes
+  `expansion.contains.property` (R5) and the R4/R4B backport extension
+  `http://hl7.org/fhir/5.0/StructureDefinition/extension-ValueSet.expansion.contains.property` using the `itemWeight` property.
+  Legacy score extraction from `expansion.contains.extension`
+  (`ordinalValue`/`itemWeight`) is retained as a deprecated fallback for
+  backward compatibility.
+
 ## [42.1.0] 2026-05-04
 ### Added
 - New utility function LForms.Util.checkConstraints() to get a list
