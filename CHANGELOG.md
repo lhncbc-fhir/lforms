@@ -2,6 +2,13 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Fixed
+- For `rendering-markdown`, added support for `valueMarkdown` with
+  backward-compatible fallback to legacy `valueString` across import/export
+  paths. This also preserves the original markdown `value[x]` key during
+  Questionnaire round-trip conversion.
+
 ## [42.2.0] 2026-05-07
 ### Changed
 - For ValueSet expansions, score import now prioritizes
@@ -2098,4 +2105,3 @@ object.
 ### Removed
 - WidgetUtil.preprocessRIData.  This was an internal API, so it should not be
   a breaking change for anyone but ourselves.
-
