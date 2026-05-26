@@ -2,18 +2,33 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [42.2.0] 2026-05-07
+### Changed
+- For ValueSet expansions, score import now prioritizes
+  `expansion.contains.property` (R5) and the R4/R4B backport extension
+  `http://hl7.org/fhir/5.0/StructureDefinition/extension-ValueSet.expansion.contains.property` using the `itemWeight` property.
+  Legacy score extraction from `expansion.contains.extension`
+  (`ordinalValue`/`itemWeight`) is retained as a deprecated fallback for
+  backward compatibility.
+
+## [42.1.0] 2026-05-04
+### Added
+- New utility function LForms.Util.checkConstraints() to get a list
+  of errors/warnings from targetConstraints, including severity levels.
+### Fixed
+- Issues where targetConstraint errors were ignored or duplicated.
+
+## [42.0.0] 2026-04-29
+### Changed
+- LForms.Util.validateQuestionnaireOnFHIRServer() returned Promise
+  now resolves to an OperationOutcome resource from the $validate operation.
+
 ## [41.2.0] 2026-04-20
 ### Added
 - New template option showRadioClearSelectionButton to show a
   "clear selection" button next to radio buttons. Defaults to false.
 ### Changed
 - Converted Cypress e2e tests to Playwright.
-- For ValueSet expansions, score import now prioritizes
-  `expansion.contains.property` (R5) and the R4/R4B backport extension
-  `http://hl7.org/fhir/5.0/StructureDefinition/extension-ValueSet.expansion.contains.property`.
-  Legacy score extraction from `expansion.contains.extension`
-  (`ordinalValue`/`itemWeight`) is retained as a deprecated fallback for
-  backward compatibility.
 
 ## [41.1.0] 2026-04-02
 ### Added
@@ -2083,3 +2098,4 @@ object.
 ### Removed
 - WidgetUtil.preprocessRIData.  This was an internal API, so it should not be
   a breaking change for anyone but ourselves.
+

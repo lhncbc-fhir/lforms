@@ -709,30 +709,103 @@ test.describe('Validations', () => {
 
     test('should validate targetConstraint', async ({ page }) => {
       await loadFromTestData(page, 'q-with-targetConstraint.json', 'R4');
-      await byId(page, '1.1/1/1').fill('2');
-      await byId(page, '1.2/1/1').fill('1');
-      await byId(page, '1.2/1/1').blur();
+      let q1 = byId(page, '1.1/1/1');
+      let q2 = byId(page, '1.2/1/1');
+      await q1.pressSequentially('2');
+      await q2.pressSequentially('1');
+      await q2.blur();
       const errors1 = await page.evaluate(() => {
-        return (window as any).LForms.Util.checkValidity();
+        return (window as any).LForms.Util.checkConstraints();
       });
       expect(errors1).toEqual([
-        'Please enter a minimum and maximum value. The minimum value must be less than or equal to the maximum value. The targetConstraint key is: min-max-check.'
+        {
+          linkId: '1',
+          message: 'The minimum value must be less than or equal to the maximum value.',
+          severity: 'error',
+          constraintKey: 'min-max-check',
+          locationLinkId: '1.2'
+        }
       ]);
       // The error message should be shown on the Maximum Value field, as defined in the
       // targetConstraint extension 'location' sub extension.
-      await expect(
-        byId(page, 'item-1.2/1/1').locator(':text("The minimum value must be less than or equal to the maximum value.")')
-      ).toBeVisible();
+      await q2.click();
+      await expect(page.locator(errorContainer).filter({ hasText: "The minimum value must be less than or equal to the maximum value." })).toBeVisible();
       // Change to valid values.
-      await byId(page, '1.2/1/1').fill('3');
-      await byId(page, '1.2/1/1').blur();
+      await q2.clear();
+      await q2.pressSequentially('3');
+      await q2.blur();
       const errors2 = await page.evaluate(() => {
-        return (window as any).LForms.Util.checkValidity();
+        return (window as any).LForms.Util.checkConstraints();
       });
       expect(errors2).toBeNull();
-      await expect(
-        page.locator(':text("The minimum value must be less than or equal to the maximum value.")')
-      ).not.toBeVisible();
+      await q2.click();
+      await expect(page.locator(errorContainer).filter({ hasText: "The minimum value must be less than or equal to the maximum value." })).not.toBeVisible();
+    });
+
+    test('should validate targetConstraint - complex', async ({ page }) => {
+      await loadFromTestData(page, 'q-with-targetConstraint-issues.json', 'R4');
+      let q1 = byId(page, '1/1/1');
+      await q1.click();
+      await pressCypressKeys(q1, '{downArrow}{enter}');
+      await q1.blur();
+      const errors1 = await page.evaluate(() => {
+        return (window as any).LForms.Util.checkConstraints();
+      });
+      expect(errors1).toEqual([
+        {
+          linkId: 'container',
+          message: 'You must state your favorite color or number (or both).',
+          severity: 'error',
+          constraintKey: 'constraint-dont-be-shy',
+          locationLinkId: '1'
+        }
+      ]);
+      // The error message should be shown on the Maximum Value field, as defined in the
+      // targetConstraint extension 'location' sub extension.
+      await q1.click();
+      await expect(page.locator(errorContainer).filter({ hasText: "You must state your favorite color or number (or both)." })).toBeVisible();
+      // Check constraints again, and it should return the same error without repeating it.
+      const errors2 = await page.evaluate(() => {
+        return (window as any).LForms.Util.checkConstraints();
+      });
+      expect(errors2).toEqual([
+        {
+          linkId: 'container',
+          message: 'You must state your favorite color or number (or both).',
+          severity: 'error',
+          constraintKey: 'constraint-dont-be-shy',
+          locationLinkId: '1'
+        }
+      ]);
+      // Fill field 3 to make the constraint valid.
+      let q3 = byId(page, '3/1/1');
+      await q3.click();
+      await pressCypressKeys(q3, '{downArrow}{enter}');
+      await q3.blur();
+      const errors3 = await page.evaluate(() => {
+        return (window as any).LForms.Util.checkConstraints();
+      });
+      expect(errors3).toBeNull();
+      await q1.click();
+      await expect(page.locator(errorContainer).filter({ hasText: "You must state your favorite color or number (or both)." })).not.toBeVisible();
+      // Make field 3 violate the constraint with a warning.
+      await q3.click();
+      await pressCypressKeys(q3, '{downArrow}{downArrow}{downArrow}{enter}');
+      await q3.blur();
+      const errors4 = await page.evaluate(() => {
+        return (window as any).LForms.Util.checkConstraints();
+      });
+      expect(errors4).toEqual([
+        {
+          linkId: '3',
+          message: 'The Sox is not a valid answer since it might refer to the White Sox.',
+          severity: 'warning',
+          constraintKey: 'constraint-team',
+          locationLinkId: '3'
+        }
+      ]);
+      await q3.click();
+      await expect(page.locator(errorContainer).filter({ hasText: "The Sox is not a valid answer since it might refer to the White Sox." })).toBeVisible();
     });
   });
 });
