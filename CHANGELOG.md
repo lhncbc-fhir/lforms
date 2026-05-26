@@ -2,7 +2,7 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [42.2.1] 2026-05-26
 ### Fixed
 - For `rendering-markdown`, added support for `valueMarkdown` with
   backward-compatible fallback to legacy `valueString` across import/export
