@@ -1763,23 +1763,23 @@ function addCommonSDCImportFns(ns) {
         }
 
         // there is a xhtml or markdown extension
-        const markdownText = markdownFormat ? InternalUtil.getMarkdownExtensionValue(markdownFormat) : null;
+        const markdownText = InternalUtil.getMarkdownExtensionValue(markdownFormat);
         const htmlString = xhtmlFormat ? xhtmlFormat.valueString :
           (typeof markdownText === 'string' ? InternalUtil.md.render(markdownText) : null);
-        const markdownValueType = markdownFormat && markdownFormat.valueMarkdown !== undefined ? 'valueMarkdown' : 'valueString';
+        const markdownValueType = markdownFormat?.valueMarkdown !== undefined ? 'valueMarkdown' : 'valueString';
         if (htmlString) {
           helpOrLegal = isLegal ? {
             legalFormat: xhtmlFormat ? "html" : "markdown",
             legal: htmlString,
             legalOriginalMarkdown: xhtmlFormat ? null : markdownText, // kept for export use
-            legalMarkdownValueType: xhtmlFormat ? null : markdownValueType, // keeps original value[x] key for export compatibility
+            legalMarkdownValueType: xhtmlFormat ? null : markdownValueType, // internal field to preserve original markdown value[x] key on export
             legalLinkId: qItem.linkId,
             legalPlain: qItem.text  // this always contains the legal in plain text
           } : {
             codingInstructionsFormat: xhtmlFormat ? "html" : "markdown",
             codingInstructions: htmlString,
             codingInstructionsOriginalMarkdown: xhtmlFormat ? null : markdownText, // kept for export use
-            codingInstructionsMarkdownValueType: xhtmlFormat ? null : markdownValueType, // keeps original value[x] key for export compatibility
+            codingInstructionsMarkdownValueType: xhtmlFormat ? null : markdownValueType, // internal field to preserve original markdown value[x] key on export
             codingInstructionsLinkId: qItem.linkId,
             codingInstructionsPlain: qItem.text  // this always contains the coding instructions in plain text
           };

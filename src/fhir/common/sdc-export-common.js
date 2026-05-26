@@ -538,6 +538,9 @@ function addCommonSDCExportFns(ns) {
           }]
         }
       } else if (item.codingInstructionsFormat === 'markdown') {
+        // codingInstructionsMarkdownValueType is an internal field set during
+        // FHIR import to preserve whether the source used valueMarkdown or
+        // legacy valueString for rendering-markdown.
         const markdownValueKey = item.codingInstructionsMarkdownValueType === 'valueString' ? 'valueString' : 'valueMarkdown';
         helpItem._text = {
           "extension": [{
@@ -600,6 +603,9 @@ function addCommonSDCExportFns(ns) {
           }]
         }
       } else if (item.legalFormat === 'markdown') {
+        // legalMarkdownValueType is an internal field set during FHIR import
+        // to preserve whether the source used valueMarkdown or legacy
+        // valueString for rendering-markdown.
         const markdownValueKey = item.legalMarkdownValueType === 'valueString' ? 'valueString' : 'valueMarkdown';
         legalItem._text = {
           "extension": [{
