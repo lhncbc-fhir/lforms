@@ -1806,10 +1806,8 @@ export default class LhcFormData {
    * @returns {Array<string> | null} list of errors or null if no errors
    */
   checkConstraints () {
-    // Regenerate _elemIDToQRItem to get a fresh context, otherwise the evaluated result will be cached
-    // even after you change form value and evaluate again.
-    this._expressionProcessor._regenerateFhirVariableQ();
-    this._expressionProcessor._regenerateQuestionnaireResp();
+    // re-evaluated FHIRPath expression in case variables need an update.
+    this._expressionProcessor.runCalculations(false);
     const issues = [];
     const itemListLength = this.itemList.length;
     for (let i = 0; i < itemListLength; i++) {

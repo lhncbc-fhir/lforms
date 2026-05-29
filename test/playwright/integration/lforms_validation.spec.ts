@@ -807,5 +807,36 @@ test.describe('Validations', () => {
       await q3.click();
       await expect(page.locator(errorContainer).filter({ hasText: "The Sox is not a valid answer since it might refer to the White Sox." })).toBeVisible();
     });
+
+    test('should validate targetConstraint that uses FHIRPath variables', async ({ page }) => {
+      await loadFromTestData(page, 'q-with-targetConstraint-and-variable.json', 'R4');
+      const errors1 = await page.evaluate(() => {
+        return (window as any).LForms.Util.checkConstraints();
+      });
+      expect(errors1).toBeNull();
+      // a valid value (between 1 and 100)
+      let q1 = byId(page, 'number-one-to-hundred/1');
+      await q1.pressSequentially('2');
+      await q1.blur();
+      const errors2 = await page.evaluate(() => {
+        return (window as any).LForms.Util.checkConstraints();
+      });
+      expect(errors2).toBeNull();
+      // type an invalid value
+      await q1.clear();
+      await q1.pressSequentially('200');
+      await q1.blur();
+      const errors3 = await page.evaluate(() => {
+        return (window as any).LForms.Util.checkConstraints();
+      });
+      expect(errors3).toEqual([
+        { constraintKey: "number-1-to-100",
+          linkId: "number-one-to-hundred",
+          locationLinkId: "number-one-to-hundred",
+          message: "Number must be between 1 and 100.", 
+          severity: "error"
+        }
+      ]);
+    });
   });
 });
