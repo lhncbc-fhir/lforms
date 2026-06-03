@@ -1782,7 +1782,7 @@ export default class LhcFormData {
     for (let i = 0; i < itemListLength; i++) {
       const item = this.itemList[i];
 
-      if (item._skipLogicStatus !== CONSTANTS.SKIP_LOGIC.STATUS_DISABLED) {
+      if (InternalUtil.targetEnabled(item)) {
         this._checkValidations(item);
 
         if (item._validationErrors !== undefined && item._validationErrors.length) {
