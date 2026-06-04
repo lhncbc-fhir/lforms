@@ -19,7 +19,7 @@
           "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression",
           "valueExpression": {
             "language": "text/fhirpath",
-            "expression": "%resource.descendants().where(linkId='230163030858').answer.value = true"
+            "expression": "%resource.descendants().where(linkId='question').answer.value = true"
           }
         }
       ],
