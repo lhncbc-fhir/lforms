@@ -2,6 +2,11 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [42.2.1] 2026-06-04
+### Fixed
+- An issue of checkValidity() marking required items as missing when
+  they or their parents are not enabled due to enableWhen.
+
 ## [42.2.0] 2026-05-07
 ### Changed
 - For ValueSet expansions, score import now prioritizes
