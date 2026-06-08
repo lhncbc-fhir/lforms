@@ -662,32 +662,37 @@ export default class LhcFormData {
               linkId: item.linkId,
               message: human,
               severity: severity,
-              constraintKey: constraintKey
+              constraintKey: constraintKey,
+              locationLinkIds: []
             } as any;
             issues.push(issue);
-            const location = constraint.find(e => e.url === 'location')?.valueString;
-            if (location) {
-              const itemOfLocation = this._expressionProcessor._evaluateFHIRPathAgainstContext(item, location, item);
-              if (itemOfLocation.linkId) {
-                issue.locationLinkId = itemOfLocation.linkId;
-                // Use a timeout to add to the validation errors of the location item, lest it be overridden by
-                // the validation of the location item itself which might be processed after the current item.
-                setTimeout(() => {
-                  let itemToShowError = this.itemList.find(x => x.linkId === itemOfLocation.linkId);
-                  if (itemToShowError) {
-                    // Add the validation error message (human) to the item._validationErrors or item._validationWarnings
-                    // array of the item specified in the constraint's location.
-                    if (severity === 'warning') {
-                      itemToShowError._validationWarnings = [...itemToShowError._validationWarnings || [], human];
-                    } else {
-                      itemToShowError._validationErrors = [...itemToShowError._validationErrors || [], human];
+            const locations = constraint
+              .filter(e => e.url === 'location' && e.valueString)
+              .map(e => e.valueString);
+            if (locations.length) {
+              locations.forEach(location => {
+                const itemOfLocation = this._expressionProcessor._evaluateFHIRPathAgainstContext(item, location, item);
+                if (itemOfLocation.linkId) {
+                  issue.locationLinkIds.push(itemOfLocation.linkId);
+                  // Use a timeout to add to the validation errors of the location item, lest it be overridden by
+                  // the validation of the location item itself which might be processed after the current item.
+                  setTimeout(() => {
+                    let itemToShowError = this.itemList.find(x => x.linkId === itemOfLocation.linkId);
+                    if (itemToShowError) {
+                      // Add the validation error message (human) to the item._validationErrors or item._validationWarnings
+                      // array of the item specified in the constraint's location.
+                      if (severity === 'warning') {
+                        itemToShowError._validationWarnings = [...itemToShowError._validationWarnings || [], human];
+                      } else {
+                        itemToShowError._validationErrors = [...itemToShowError._validationErrors || [], human];
+                      }
+                      itemToShowError._hasValidation = true;
                     }
-                    itemToShowError._hasValidation = true;
-                  }
-                }, 1);
-              } else {
-                console.warn(`The location expression "${location}" in the constraint "${constraintKey}" on item "${item.linkId}" does not evaluate to an item with a linkId, so the validation message will not be added to any item._validationErrors array.`);
-              }
+                  }, 1);
+                } else {
+                  console.warn(`The location expression "${location}" in the constraint "${constraintKey}" on item "${item.linkId}" does not evaluate to an item with a linkId, so the validation message will not be added to any item._validationErrors array.`);
+                }
+              });
             } else {
               console.warn(`No location is specified for the constraint "${constraintKey}" on item "${item.linkId}", so the validation message will not be added to any item._validationErrors array.`);
             }

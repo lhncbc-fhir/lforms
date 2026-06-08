@@ -6,6 +6,8 @@ This project follows [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Fixed a bug in checking targetConstraints that FHIRPath variables 
   might not be found.
+### Changed
+- Support multiple locations on targetConstraint.
 
 ## [42.2.0] 2026-05-07
 ### Changed
