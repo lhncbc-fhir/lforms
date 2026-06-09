@@ -113,7 +113,6 @@ export const InternalUtil = {
 
   /**
    * Gets the markdown string from a rendering-markdown extension.
-   * Supports both valueMarkdown (preferred) and legacy valueString.
    * @param markdownFormat the rendering-markdown extension.
    * @returns {string|null}
    */
@@ -123,9 +122,6 @@ export const InternalUtil = {
     }
     if (typeof markdownFormat.valueMarkdown === 'string') {
       return markdownFormat.valueMarkdown;
-    }
-    if (typeof markdownFormat.valueString === 'string') {
-      return markdownFormat.valueString;
     }
     return null;
   },

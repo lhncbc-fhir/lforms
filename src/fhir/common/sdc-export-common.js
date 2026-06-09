@@ -361,7 +361,6 @@ function addCommonSDCExportFns(ns) {
     this._handleMeta(target);
   };
 
-
   /**
    * Handle Questionnaire.meta field
    */
@@ -538,14 +537,10 @@ function addCommonSDCExportFns(ns) {
           }]
         }
       } else if (item.codingInstructionsFormat === 'markdown') {
-        // codingInstructionsMarkdownValueType is an internal field set during
-        // FHIR import to preserve whether the source used valueMarkdown or
-        // legacy valueString for rendering-markdown.
-        const markdownValueKey = item.codingInstructionsMarkdownValueType === 'valueString' ? 'valueString' : 'valueMarkdown';
         helpItem._text = {
           "extension": [{
             "url": "http://hl7.org/fhir/StructureDefinition/rendering-markdown",
-            [markdownValueKey]: item.codingInstructionsOriginalMarkdown
+            "valueMarkdown": item.codingInstructionsOriginalMarkdown
           }]
         }
       }
@@ -603,14 +598,10 @@ function addCommonSDCExportFns(ns) {
           }]
         }
       } else if (item.legalFormat === 'markdown') {
-        // legalMarkdownValueType is an internal field set during FHIR import
-        // to preserve whether the source used valueMarkdown or legacy
-        // valueString for rendering-markdown.
-        const markdownValueKey = item.legalMarkdownValueType === 'valueString' ? 'valueString' : 'valueMarkdown';
         legalItem._text = {
           "extension": [{
             "url": "http://hl7.org/fhir/StructureDefinition/rendering-markdown",
-            [markdownValueKey]: item.legalOriginalMarkdown
+            "valueMarkdown": item.legalOriginalMarkdown
           }]
         }
       }
