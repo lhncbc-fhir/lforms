@@ -2,8 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [42.2.1] 2026-05-29
+## [42.2.1] 2026-06-11
 ### Fixed
+- An issue of checkValidity() marking required items as missing when
+  they or their parents are not enabled due to enableWhen.
 - Fixed a bug in checking targetConstraints that FHIRPath variables 
   might not be found.
 ### Changed
