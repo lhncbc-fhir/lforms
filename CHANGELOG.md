@@ -2,17 +2,21 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [42.2.1] 2026-06-04
+## [42.2.1] 2026-06-11
 ### Fixed
 - An issue of checkValidity() marking required items as missing when
   they or their parents are not enabled due to enableWhen.
+- Fixed a bug in checking targetConstraints that FHIRPath variables 
+  might not be found.
+### Changed
+- Support multiple locations on targetConstraint.
 
 ## [42.2.0] 2026-05-07
 ### Changed
 - For ValueSet expansions, score import now prioritizes
   `expansion.contains.property` (R5) and the R4/R4B backport extension
-  `http://hl7.org/fhir/5.0/StructureDefinition/extension-ValueSet.expansion.contains.property` using the `itemWeight` property.
-  Legacy score extraction from `expansion.contains.extension`
+  `http://hl7.org/fhir/5.0/StructureDefinition/extension-ValueSet.expansion.contains.property` 
+  using the `itemWeight` property. Legacy score extraction from `expansion.contains.extension`
   (`ordinalValue`/`itemWeight`) is retained as a deprecated fallback for
   backward compatibility.
 
