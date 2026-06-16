@@ -550,6 +550,26 @@ test.describe('Validations', () => {
       const error = await page.evaluate(() => (window as any).LForms.Util.checkValidity());
       expect(error).toBeNull();
     });
+
+    test('should skip validation if a parent has enableWhen expression evaluated to false', async ({ page }) => {
+      await page.goto('/test/pages/lforms_testpage.html');
+      await waitForLFormsReady(page);
+      await loadFromTestData(page, 'q-required-with-parent-enableWhen.json', 'R4');
+      // Normal case. Parent item is enabled and required child item is empty, validation should show error message.
+      await byId(page, 'question/1|true').click();
+      const errors = await page.evaluate(() => {
+        return (window as any).LForms.Util.checkValidity();
+      });
+      expect(errors).toEqual([
+        "Required child item requires a value"
+      ]);
+      // Validation should be skipped since the parent question has enableWhen expression evaluated to false.
+      await byId(page, 'question/1|false').click();
+      const errors2 = await page.evaluate(() => {
+        return (window as any).LForms.Util.checkValidity();
+      });
+      expect(errors2).toBeNull();
+    });
   });
 
   test.describe('modifierExtension', () => {

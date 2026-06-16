@@ -1782,26 +1782,35 @@ export default class LhcFormData {
    */
   checkValidity () {
     const errors = [];
-    const itemListLength = this.itemList.length;
-
-    for (let i = 0; i < itemListLength; i++) {
-      const item = this.itemList[i];
-
-      if (item._skipLogicStatus !== CONSTANTS.SKIP_LOGIC.STATUS_DISABLED) {
-        this._checkValidations(item);
-
-        if (item._validationErrors !== undefined && item._validationErrors.length) {
-          const errorDetails = item._validationErrors.map((e) => `${item.question} ${e}`);
-
-          Array.prototype.push.apply(errors, errorDetails);
-        }
-      }
-    }
-
+    this._collectValidityErrors(this.items, errors);
     if (errors.length) {
       return errors;
     } else {
       return null;
+    }
+  }
+
+
+  /**
+   * Recursively check and collect validation errors on each item and its subtree.
+   * @param items sibling items on one level of the tree
+   * @param errors an array to collect errors
+   * @private
+   */
+  _collectValidityErrors(items, errors) {
+    for (let i = 0, iLen = items.length; i < iLen; i++) {
+      const item = items[i];
+      if (InternalUtil.targetEnabled(item)) {
+        this._checkValidations(item);
+        if (item._validationErrors !== undefined && item._validationErrors.length) {
+          const errorDetails = item._validationErrors.map((e) => `${item.question} ${e}`);
+          Array.prototype.push.apply(errors, errorDetails);
+        }
+        // process the sub items
+        if (item.items && item.items.length > 0) {
+          this._collectValidityErrors(item.items, errors);
+        }
+      }
     }
   }
 
