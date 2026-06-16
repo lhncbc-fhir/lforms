@@ -2,10 +2,15 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [42.2.1] 2026-06-11
+## [42.2.2] 2026-06-11
 ### Fixed
+- For the `rendering-markdown` extension, support for wrong value[x] `valueString` was removed.
+  Import and export now use the spec-compliant `valueMarkdown` field.
 - An issue of checkValidity() marking required items as missing when
   they or their parents are not enabled due to enableWhen.
+
+## [42.2.1] 2026-05-29
+### Fixed
 - Fixed a bug in checking targetConstraints that FHIRPath variables 
   might not be found.
 ### Changed
